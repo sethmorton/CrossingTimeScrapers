@@ -2,11 +2,12 @@
 const axios = require('axios');
 const fs = require('fs');
 const { Pool } = require('pg');
-require('dotenv').config();
+const SECRET_PASS="S2R5SRyQGR8NJXhh";
+const SECRET_USER="borderuser";
 const config = {
-  user: process.env.SECRET_USER, // env var: PGUSER
+  user: SECRET_USER, // env var: PGUSER
   database: 'smartborder', // env var: PGDATABASE
-  password: process.env.SECRET_PASS, // env var: PGPASSWORD
+  password: SECRET_PASS, // env var: PGPASSWORD
   host: 'public-db-ssp.aivencloud.com', // Server hosting the postgres database
   port: 27076, // env var: PGPORT
   max: 10, // max number of clients in the pool
@@ -28,7 +29,8 @@ class Maps {
     INSERT INTO wait_times(port_id, duration, datetime)
       VALUES (1, ${travelTime}, current_timestamp);
     `
-    const pool = new Pool(config)
+    const pool = new Pool(config);
+    console.log(pool);
     pool.query(insertTimesSQL, (err, res) => {
       let { rows } = res;
       console.log(rows)

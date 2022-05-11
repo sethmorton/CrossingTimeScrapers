@@ -4,7 +4,8 @@ const axios = require("axios");
 const { DateTime } = require("luxon");
 const { Pool } = require("pg");
 const { parse } = require('rss-to-json');
-require('dotenv').config();
+const SECRET_PASS="S2R5SRyQGR8NJXhh";
+const SECRET_USER="borderuser";
 // CONSTS
 const lane_types = ['general', 'sentri', 'ready'];
 const bpsql = 'INSERT INTO rss_times(date, lane_type, delay_seconds, port_num, daterecorded, raw_json) VALUES (';
@@ -16,9 +17,9 @@ const portnum = 250401;
 
 const query = async (q) => {
   const config = {
-    user: process.env.SECRET_USER, // env var: PGUSER
+    user: SECRET_USER, // env var: PGUSER
     database: 'smartborder', // env var: PGDATABASE
-    password: process.env.SECRET_PASS, // env var: PGPASSWORD
+    password: SECRET_PASS, // env var: PGPASSWORD
     host: 'public-db-ssp.aivencloud.com', // Server hosting the postgres database
     port: 27076, // env var: PGPORT
     max: 10, // max number of clients in the pool
@@ -30,6 +31,7 @@ const query = async (q) => {
   const pool = new Pool(config);
   try {
 	console.log(q);
+  console.log(pool)
     const res = await pool.query(q);
     console.log(res);
     return res;
@@ -90,7 +92,7 @@ const collect = async () => {
         q += endbp;
     }
     console.log(q);
-    await query(q)
+    let collected = await query(q)
     fs.appendFileSync('/var/www/crossingTimes/rss.txt', `${q}`);
 }
 
