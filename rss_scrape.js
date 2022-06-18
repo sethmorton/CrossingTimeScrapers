@@ -11,6 +11,8 @@ const { Pool } = require("pg");
 const { parse } = require('rss-to-json');
 const SECRET_PASS= process.env.SECRET_PASS;
 const SECRET_USER= process.env.SECRET_USER;
+const SECRET_HOST = process.env.SECRET_HOST;
+const SECRET_DATABASE = process.env.SECRET_HOST;
 // CONSTS
 const lane_types = ['general', 'sentri', 'ready'];
 const bpsql = 'INSERT INTO rss_times(date, lane_type, delay_seconds, port_num, daterecorded, raw_json) VALUES (';
@@ -23,14 +25,14 @@ const portnum = 250401;
 const query = async (q) => {
   const config = {
     user: SECRET_USER, // env var: PGUSER
-    database: 'smartborder', // env var: PGDATABASE
+    database: SECRET_DATABASE, // env var: PGDATABASE
     password: SECRET_PASS, // env var: PGPASSWORD
-    host: 'public-db-ssp.aivencloud.com', // Server hosting the postgres database
+    host: SECRET_HOST, // Server hosting the postgres database
     port: 27076, // env var: PGPORT
     max: 10, // max number of clients in the pool
     idleTimeoutMillis: 5000,
     ssl: {
-      ca: fs.readFileSync('/var/www//ca.pem'),
+      ca: fs.readFileSync('/var/www/ca.pem'),
     }, // how long a client is allowed to remain idle before being closed
   };
   const pool = new Pool(config);
