@@ -11,11 +11,13 @@ const fs = require('fs');
 const { Pool } = require('pg');
 const SECRET_PASS= process.env.SECRET_PASS;
 const SECRET_USER= process.env.SECRET_USER;
+const SECRET_HOST = process.env.SECRET_HOST;
+const SECRET_DATABASE = process.env.SECRET_HOST;
 const config = {
   user: SECRET_USER, // env var: PGUSER
-  database: 'smartborder', // env var: PGDATABASE
+  database: SECRET_DATABASE, // env var: PGDATABASE
   password: SECRET_PASS, // env var: PGPASSWORD
-  host: 'public-db-ssp.aivencloud.com', // Server hosting the postgres database
+  host: SECRET_HOST, // Server hosting the postgres database
   port: 27076, // env var: PGPORT
   max: 10, // max number of clients in the pool
   idleTimeoutMillis: 5000,
