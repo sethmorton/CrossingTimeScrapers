@@ -1,11 +1,16 @@
 // IMPORTS
+
+const dotenv = require('dotenv')
+dotenv.config({ path: __dirname + '/.env' })
+console.log(__dirname + '/.env')
+
 const fs = require("fs");
 const axios = require("axios");
 const { DateTime } = require("luxon");
 const { Pool } = require("pg");
 const { parse } = require('rss-to-json');
-const SECRET_PASS="S2R5SRyQGR8NJXhh";
-const SECRET_USER="borderuser";
+const SECRET_PASS= process.env.SECRET_PASS;
+const SECRET_USER= process.env.SECRET_USER;
 // CONSTS
 const lane_types = ['general', 'sentri', 'ready'];
 const bpsql = 'INSERT INTO rss_times(date, lane_type, delay_seconds, port_num, daterecorded, raw_json) VALUES (';
@@ -25,7 +30,7 @@ const query = async (q) => {
     max: 10, // max number of clients in the pool
     idleTimeoutMillis: 5000,
     ssl: {
-      ca: fs.readFileSync('/home/sethmorton/ca.pem'),
+      ca: fs.readFileSync('/var/www//ca.pem'),
     }, // how long a client is allowed to remain idle before being closed
   };
   const pool = new Pool(config);
