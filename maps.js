@@ -1,9 +1,16 @@
-// imports
+
+ const dotenv = require('dotenv')
+ dotenv.config({ path: __dirname + '/.env' })
+ console.log(__dirname + '/.env')
+
+ /** 
+ * Imports
+ */
 const axios = require('axios');
 const fs = require('fs');
 const { Pool } = require('pg');
-const SECRET_PASS="S2R5SRyQGR8NJXhh";
-const SECRET_USER="borderuser";
+const SECRET_PASS= process.env.SECRET_PASS;
+const SECRET_USER= process.env.SECRET_USER;
 const config = {
   user: SECRET_USER, // env var: PGUSER
   database: 'smartborder', // env var: PGDATABASE
@@ -13,7 +20,7 @@ const config = {
   max: 10, // max number of clients in the pool
   idleTimeoutMillis: 5000,
   ssl: {
-    ca: fs.readFileSync('/home/sethmorton/ca.pem'),
+    ca: fs.readFileSync('/var/www/ca.pem'),
   }, // how long a client is allowed to remain idle before being closed
 };
 class Maps {
@@ -26,11 +33,12 @@ class Maps {
     // after some time... i have found the duration in this massive nest
     const travelTime = googleResponse.data.rows[0].elements[0].duration_in_traffic.value
     const insertTimesSQL = `
-    INSERT INTO wait_times(port_id, duration, datetime)
-      VALUES (1, ${travelTime}, current_timestamp);
+    INSERT INTO google_data(duration, datetime)
+      VALUES ( ${travelTime}, current_timestamp);
     `
     const pool = new Pool(config);
     console.log(pool);
+    console.log(insertTimesSQL);
     pool.query(insertTimesSQL, (err, res) => {
       let { rows } = res;
       console.log(rows)
