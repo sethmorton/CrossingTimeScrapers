@@ -12,7 +12,7 @@ const { Pool } = require('pg');
 const SECRET_PASS= process.env.SECRET_PASS;
 const SECRET_USER= process.env.SECRET_USER;
 const SECRET_HOST = process.env.SECRET_HOST;
-const SECRET_DATABASE = process.env.SECRET_HOST;
+const SECRET_DATABASE = process.env.SECRET_DATABASE;
 const config = {
   user: SECRET_USER, // env var: PGUSER
   database: SECRET_DATABASE, // env var: PGDATABASE
@@ -35,7 +35,7 @@ class Maps {
     // after some time... i have found the duration in this massive nest
     const travelTime = googleResponse.data.rows[0].elements[0].duration_in_traffic.value
     const insertTimesSQL = `
-    INSERT INTO google_data(duration, datetime)
+    INSERT INTO wait_times(duration, datetime)
       VALUES ( ${travelTime}, current_timestamp);
     `
     const pool = new Pool(config);

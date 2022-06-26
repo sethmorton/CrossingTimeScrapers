@@ -12,7 +12,7 @@ const { parse } = require('rss-to-json');
 const SECRET_PASS= process.env.SECRET_PASS;
 const SECRET_USER= process.env.SECRET_USER;
 const SECRET_HOST = process.env.SECRET_HOST;
-const SECRET_DATABASE = process.env.SECRET_HOST;
+const SECRET_DATABASE = process.env.SECRET_DATABASE;
 
 // CONSTS
 const lane_types = ['general', 'sentri', 'ready'];
