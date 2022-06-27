@@ -20,8 +20,8 @@ const SECRET_DATABASE = process.env.SECRET_DATABASE;
 
 class Maps {
   async merge_run() {
-    const first = await this.googleMaps();
-    const second = await this.rss_feed();
+     await this.googleMaps();
+     await this.rss_feed();
   }
   async query(q) {
     const config = {
@@ -40,7 +40,6 @@ class Maps {
     try {
       console.log('hello')
       const res = await pool.query(q);
-      console.log(res.rows);
       console.log('data has been collected');
       return res;
     } catch (err) {
