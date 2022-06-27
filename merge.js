@@ -111,7 +111,6 @@ class Maps {
       q += endbp;
     }
     let collected = await this.query(q);
-    fs.appendFileSync('/var/www/crossingTimes/rss.txt', `${q}`);
   }
 }
 const maps = new Maps()
