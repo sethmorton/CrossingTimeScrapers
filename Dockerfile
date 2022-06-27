@@ -8,4 +8,4 @@ RUN npm ci
 
 # Copy all local files into the image.
 COPY . .
-CMD ["node", "merge.js"]
+CMD ["node", "collect_all.js"]
