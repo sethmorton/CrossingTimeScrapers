@@ -1,7 +1,6 @@
 
-const dotenv = require('dotenv')
-dotenv.config({ path: __dirname + '/.env' })
-console.log(__dirname + '/.env')
+const dotenv = require('dotenv');
+dotenv.config({ path: __dirname + '/.env' });
 
 /** 
 * Imports
@@ -20,6 +19,10 @@ const SECRET_HOST = process.env.SECRET_HOST;
 const SECRET_DATABASE = process.env.SECRET_DATABASE;
 
 class Maps {
+  async merge_run() {
+    const first = await this.googleMaps();
+    const second = await this.rss_feed();
+  }
   async query(q) {
     const config = {
       user: SECRET_USER, // env var: PGUSER
@@ -35,12 +38,13 @@ class Maps {
     };
     const pool = new Pool(config);
     try {
-      console.log(q);
-      console.log(pool)
+      console.log('hello')
       const res = await pool.query(q);
-      console.log(res);
+      console.log(res.rows);
+      console.log('data has been collected');
       return res;
     } catch (err) {
+      console.log('Something"s gone wrong');
       throw err;
     }
   }
@@ -77,20 +81,14 @@ class Maps {
       timestampFound = []
     }
     let noonFound = description.match(noonReg);
-    console.log(noonFound);
     let midnightFound = description.match(midnightReg);
-    console.log(midnightFound);
-
     if (midnightFound != null) {
       for (let i = 0; i < midnightFound.length; i++) {
-        console.log(timestampFound)
         timestampFound.push('12:00 am');
       }
     }
     if (noonFound != null) {
-      console.log(noonFound)
       for (let i = 0; i < noonFound.length; i++) {
-        console.log(timestampFound)
         timestampFound.push('12:00 pm');
       }
     }
@@ -99,12 +97,10 @@ class Maps {
       const month = ('0' + (new Date().getMonth() + 1)).slice(-2)
       const day = ('0' + (new Date().getDate())).slice(-2)
       const update_time = new Date(`${year}-${month}-${day} ${timestampFound[i]}`);
-      console.log(update_time);
       let duration = Number(durationFound[i].match(/\d{1,3}/gm)[0]);
       let dateInsert = `TO_TIMESTAMP('${year}-${month}-${day} ${update_time.getHours()}:00:00.000000000', 'YYYY-MM-DD HH24:MI:SS.FF')`;
       let dateTime = DateTime.now().setZone('America/Los_Angeles');
       let date_recorded = `TO_TIMESTAMP('${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}.000000000', 'YYYY-MM-DD HH24:MI:SS.FF')`;
-      console.log(dateInsert);
       q += `${bpsql}`
       q += `${dateInsert},`
       q += `'${i}',`
@@ -114,12 +110,9 @@ class Maps {
       q += `'${raw_data}'`;
       q += endbp;
     }
-    console.log(q);
-    let collected = await this.query(q)
+    let collected = await this.query(q);
     fs.appendFileSync('/var/www/crossingTimes/rss.txt', `${q}`);
   }
 }
 const maps = new Maps()
-maps.googleMaps()
-maps.rss_feed();
-
+maps.merge_run();
