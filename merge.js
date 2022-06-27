@@ -23,7 +23,7 @@ class Maps {
      await this.googleMaps();
      await this.rss_feed();
   }
-  async query(q) {
+  async query(q, db) {
     const config = {
       user: SECRET_USER, // env var: PGUSER
       database: SECRET_DATABASE, // env var: PGDATABASE
@@ -41,7 +41,8 @@ class Maps {
       console.log('hello')
       const res = await pool.query(q);
       console.log('data has been collected');
-      return res;
+      console.log(`Rows have been inserted into ${db}`)
+      // return res;
     } catch (err) {
       console.log('Something"s gone wrong');
       throw err;
@@ -59,7 +60,7 @@ class Maps {
     INSERT INTO wait_times(duration, datetime)
       VALUES ( ${travelTime}, current_timestamp);
     `
-    this.query(insertTimesSQL);
+    this.query(insertTimesSQL, "Maps Table");
   }
   async rss_feed() {
     const lane_types = ['general', 'sentri', 'ready'];
@@ -109,7 +110,7 @@ class Maps {
       q += `'${raw_data}'`;
       q += endbp;
     }
-    let collected = await this.query(q);
+    let collected = await this.query(q, "CBP Table");
   }
 }
 const maps = new Maps()
