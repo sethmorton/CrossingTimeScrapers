@@ -22,9 +22,14 @@ class Maps {
   async merge_run() {
      await this.googleMaps();
      const portNumbers = [250601, 250401, 250301, 250302];
-     portNumbers.forEach(num => {
-        await this.rss_feed(num)
-     }); 
+     // Otay
+     await this.rss_feed(250601);
+     // San Ysidro
+     await this.rss_feed(250401);
+     // Calexico West
+     await this.rss_feed(250301);
+     // Calexico East
+     await this.rss_feed(250302);
     //  await this.rss_feed();
   }
   /**
@@ -100,6 +105,15 @@ class Maps {
       for (let i = 0; i < noonFound.length; i++) {
         timestampFound.push('12:00 pm');
       }
+    };
+    console.log(durationFound);
+    try {
+      if (durationFound.length == null) {
+        console.log(durationFound);
+      }
+    }
+    catch {
+      return false;
     }
     for (let i = 0; i < durationFound.length; i++) {
       const year = new Date().getFullYear();
@@ -122,7 +136,7 @@ class Maps {
       q += `'${raw_data}'`;
       q += endbp;
     }
-    await this.query(q, "CBP Table");
+    // await this.query(q, "CBP Table");
   }
 }
 const maps = new Maps()
