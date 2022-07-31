@@ -21,8 +21,17 @@ const SECRET_DATABASE = process.env.SECRET_DATABASE;
 class Maps {
   async merge_run() {
      await this.googleMaps();
-     await this.rss_feed();
+     const portNumbers = [250601, 250401, 250301, 250302];
+     portNumbers.forEach(num => {
+        await this.rss_feed(num)
+     }); 
+    //  await this.rss_feed();
   }
+  /**
+   * 
+   * @param {string} q Query for DB, formatting will be included in the query
+   * @param {string} db just serving as the name of whether it's going to the cbp table or the google table for the logging i'm doing. 
+   */
   async query(q, db) {
     const config = {
       user: SECRET_USER, // env var: PGUSER
@@ -62,13 +71,13 @@ class Maps {
     `
     this.query(insertTimesSQL, "Maps Table");
   }
-  async rss_feed() {
+  async rss_feed(port_num = 250401) {
     const lane_types = ['general', 'sentri', 'ready'];
     const bpsql = 'INSERT INTO rss_times(date, lane_type, delay_seconds, port_num, daterecorded, raw_json) VALUES (';
     const endbp = ');';
-    const portnum = 250401;
     let q = ``;
-    let data = await parse('https://bwt.cbp.gov/api/bwtRss/rssbyportnum/HTML/POV/250401');
+    // It's time for some REGEX.  
+    let data = await parse(`https://bwt.cbp.gov/api/bwtRss/rssbyportnum/HTML/POV/${port_num}`);
     let raw_data = JSON.stringify(data['items'][0]['description']);
     let description = data['items'][0]['description']['$text'];
     let durationReg = /\d{1,3} (min)/gm;
@@ -97,6 +106,9 @@ class Maps {
       const month = ('0' + (new Date().getMonth() + 1)).slice(-2)
       const day = ('0' + (new Date().getDate())).slice(-2)
       const update_time = new Date(`${year}-${month}-${day} ${timestampFound[i]}`);
+      /**
+       * Duration in minutes
+       */
       let duration = Number(durationFound[i].match(/\d{1,3}/gm)[0]);
       let dateInsert = `TO_TIMESTAMP('${year}-${month}-${day} ${update_time.getHours()}:00:00.000000000', 'YYYY-MM-DD HH24:MI:SS.FF')`;
       let dateTime = DateTime.now().setZone('America/Los_Angeles');
@@ -105,12 +117,12 @@ class Maps {
       q += `${dateInsert},`
       q += `'${i}',`
       q += `${duration * 60},`;
-      q += `${portnum},`;
+      q += `${port_num},`;
       q += `${date_recorded},`;
       q += `'${raw_data}'`;
       q += endbp;
     }
-    let collected = await this.query(q, "CBP Table");
+    await this.query(q, "CBP Table");
   }
 }
 const maps = new Maps()
