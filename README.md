@@ -29,3 +29,9 @@ CBP
     San Ysidro - Port ID: 250401
 ```
 
+## Deploying 🚀
+``` bash
+docker build -t crossing-time-scrapers --platform=linux/amd64 .
+docker tag crossing-time-scrapers gcr.io/ssp-all-sites/crossing-time-scrapers
+docker push gcr.io/ssp-all-sites/crossing-time-scrapers
+```

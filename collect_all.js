@@ -172,7 +172,8 @@ class Maps {
         q += `'${raw_data}'`;
         q += endbp;
       }
-    }
+    };
+    console.log(q)
     await this.query(q, "CBP Table");
   }
 }
