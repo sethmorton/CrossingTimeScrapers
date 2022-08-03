@@ -118,7 +118,7 @@ class Maps {
     console.log(durationFound);
     let dateTime = DateTime.now().setZone('America/Los_Angeles');
     let date_recorded = `TO_TIMESTAMP('${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}.000000000', 'YYYY-MM-DD HH24:MI:SS.FF')`;
-
+    console.log(date_recorded)
     if (laneClosedFound != null) {
       laneClosedFound.forEach(element => {
         let firstWord = /^[^\s]+/gm;
@@ -132,7 +132,7 @@ class Maps {
         if (matchedWord == 'General') {
           q = `INSERT INTO update_pending(port_num, raw_json, date_recorded, lane_type, reason) VALUES (${port_num}, '${raw_data}', ${date_recorded}, 0, 'Lane Closed');`
         };
-        console.log(q);
+        // console.log(q);
       });
     };
     console.log(updatePendingFound);
@@ -149,20 +149,24 @@ class Maps {
         if (matchedWord == 'General') {
           q = `INSERT INTO update_pending(port_num, raw_json, date_recorded, lane_type, reason) VALUES (${port_num}, '${raw_data}', ${date_recorded}, 0, 'Update Pending');`
         };
-        console.log(q);
+        // console.log(q);
       });
     };
     if (durationFound != null) {
       for (let i = 0; i < durationFound.length; i++) {
         const year = new Date().getFullYear();
         const month = ('0' + (new Date().getMonth() + 1)).slice(-2)
-        const day = ('0' + (new Date().getDate())).slice(-2)
+        const day = ('0' + (new Date().getDate())).slice(-2);
         const update_time = new Date(`${year}-${month}-${day} ${timestampFound[i]}`);
         /**
          * Duration in minutes
          */
         let duration = Number(durationFound[i].match(/\d{1,3}/gm)[0]);
-        let dateInsert = `TO_TIMESTAMP('${year}-${month}-${day} ${update_time.getHours()}:00:00.000000000', 'YYYY-MM-DD HH24:MI:SS.FF')`;
+        let dateTime = DateTime.now().setZone('America/Los_Angeles');
+        let dateInsert = `TO_TIMESTAMP('${dateTime.year}-${dateTime.month}-${dateTime.day} ${update_time.getHours()}:00:00.000000000', 'YYYY-MM-DD HH24:MI:SS.FF')`;
+       
+        // let dateInsert = `TO_TIMESTAMP('${year}-${month}-${day} ${update_time.getHours()}:00:00.000000000', 'YYYY-MM-DD HH24:MI:SS.FF')`;
+        console.log(dateInsert);
         q += `${bpsql}`
         q += `${dateInsert},`
         q += `'${i}',`
@@ -173,7 +177,7 @@ class Maps {
         q += endbp;
       }
     };
-    console.log(q)
+    // console.log(q)
     await this.query(q, "CBP Table");
   }
 }
