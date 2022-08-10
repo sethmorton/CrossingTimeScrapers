@@ -20,16 +20,16 @@ const SECRET_DATABASE = process.env.SECRET_DATABASE;
 
 class Maps {
   async merge_run() {
-    await this.googleMaps();
-    const portNumbers = [250601, 250401, 250301, 250302];
+    // await this.googleMaps();
+    // const portNumbers = [250601, 250401, 250301, 250302];
     // Otay
     await this.rss_feed(250601);
     // San Ysidro
-    await this.rss_feed(250401);
+    // await this.rss_feed(250401);
     // Calexico West
-    await this.rss_feed(250301);
+    // await this.rss_feed(250301);
     // Calexico East
-    await this.rss_feed(250302);
+    // await this.rss_feed(250302);
     //  await this.rss_feed();
   }
   /**
@@ -77,7 +77,6 @@ class Maps {
     this.query(insertTimesSQL, "Maps Table");
   }
   async rss_feed(port_num = 250401) {
-    const lane_types = ['general', 'sentri', 'ready'];
     const bpsql = 'INSERT INTO rss_times(date, lane_type, delay_seconds, port_num, daterecorded, raw_json) VALUES (';
     const endbp = ');';
     let q = ``;
@@ -86,41 +85,34 @@ class Maps {
     let raw_data = JSON.stringify(data['items'][0]['description']);
     let description = data['items'][0]['description']['$text'];
     console.log(description);
-    let durationReg = /\d{1,3} (min)/gm;
-    let laneClosedReg = /((Ready|Sentri|General) Lanes:  Lanes Closed)/gm
-    let noonReg = /Noon PDT/gm
-    let midnightReg = /Midnight PDT/gm
-    let timestampReg = /\d{1,3}:\d{2} (am|pm)/gm
-    let durationFound = description.match(durationReg);
-    let updatePendingReg = /((Ready|Sentri|General) Lanes:  Update Pending)/gm;
-    let updatePendingFound = description.match(updatePendingReg);
-    let timestampFound = description.match(timestampReg);
-    let laneClosedFound = description.match(laneClosedReg);
-    if (timestampFound == null) {
-      timestampFound = [];
-    };
-    if (laneClosedFound == null) {
-      laneClosedFound = [];
-    };
-    console.log(laneClosedFound);
-    let noonFound = description.match(noonReg);
-    let midnightFound = description.match(midnightReg);
-    if (midnightFound != null) {
-      for (let i = 0; i < midnightFound.length; i++) {
-        timestampFound.push('12:00 am');
-      }
-    }
-    if (noonFound != null) {
-      for (let i = 0; i < noonFound.length; i++) {
-        timestampFound.push('12:00 pm');
-      }
-    };
-    console.log(durationFound);
+
     let dateTime = DateTime.now().setZone('America/Los_Angeles');
     let date_recorded = `TO_TIMESTAMP('${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}.000000000', 'YYYY-MM-DD HH24:MI:SS.FF')`;
-    console.log(date_recorded)
-    if (laneClosedFound != null) {
-      laneClosedFound.forEach(element => {
+   
+
+
+    const openLanesRegex = /(General|Ready|Sentri).(.*?)delay/gm;
+    const openLanesArray = description.match(openLanesRegex);
+
+    const makeSureElementsArentClosed = /(General|Ready|Sentri).(.*?)Closed/gm;
+    for (let i = 0; i < openLanesArray.length; i++) {
+      if (openLanesArray[i].match(/(General|Ready|Sentri).(.*?)Closed/gm)) {
+        let newElement = openLanesArray[i].match(/(?<=Closed).*/gm);
+        openLanesArray.pop(i);
+        openLanesArray.push(newElement[0])
+      }
+    };
+    // openLanesArray.forEach(element => {
+    //   if (element.match(/(General|Ready|Sentri).(.*?)Closed/gm)) {
+
+    //   }
+    // })
+    const updatePendingReg = /((Ready|Sentri|General) Lanes:  Update Pending)/gm;
+    const updatePendingArray= description.match(updatePendingReg);
+    const laneClosedReg = /((Ready|Sentri|General) Lanes:  Lanes Closed)/gm
+    const laneClosedArray = description.match(laneClosedReg);
+    if (laneClosedArray != null) {
+      laneClosedArray.forEach(element => {
         let firstWord = /^[^\s]+/gm;
         let matchedWord = element.match(firstWord);
         if (matchedWord == 'Ready') {
@@ -135,9 +127,9 @@ class Maps {
         // console.log(q);
       });
     };
-    console.log(updatePendingFound);
-    if (updatePendingFound != null) {
-      updatePendingFound.forEach(element => {
+    // console.log(updatePendingFound);
+    if (updatePendingArray != null) {
+      updatePendingArray.forEach(element => {
         let firstWord = /^[^\s]+/gm;
         let matchedWord = element.match(firstWord);
         if (matchedWord == 'Ready') {
@@ -152,31 +144,128 @@ class Maps {
         // console.log(q);
       });
     };
-    if (durationFound != null) {
-      for (let i = 0; i < durationFound.length; i++) {
-        const year = new Date().getFullYear();
-        const month = ('0' + (new Date().getMonth() + 1)).slice(-2)
-        const day = ('0' + (new Date().getDate())).slice(-2);
-        const update_time = new Date(`${year}-${month}-${day} ${timestampFound[i]}`);
-        /**
-         * Duration in minutes
-         */
-        let duration = Number(durationFound[i].match(/\d{1,3}/gm)[0]);
-        let dateTime = DateTime.now().setZone('America/Los_Angeles');
-        let dateInsert = `TO_TIMESTAMP('${dateTime.year}-${dateTime.month}-${dateTime.day} ${update_time.getHours()}:00:00.000000000', 'YYYY-MM-DD HH24:MI:SS.FF')`;
-       
-        // let dateInsert = `TO_TIMESTAMP('${year}-${month}-${day} ${update_time.getHours()}:00:00.000000000', 'YYYY-MM-DD HH24:MI:SS.FF')`;
-        console.log(dateInsert);
-        q += `${bpsql}`
-        q += `${dateInsert},`
-        q += `'${i}',`
-        q += `${duration * 60},`;
-        q += `${port_num},`;
-        q += `${date_recorded},`;
-        q += `'${raw_data}'`;
-        q += endbp;
+
+    console.log(openLanesArray);
+    openLanesArray.forEach(element => {
+      let lane = 0;
+      const durationFinder = element.match(/\d{1,3} (min)/gm);
+      const noonReg = /Noon PDT/gm;
+      const midnightReg = /Midnight PDT/gm
+      const timestampReg = /\d{1,3}:\d{2} (am|pm)/gm;
+      const laneFinder = element.match(/(General|Ready|Sentri)/gm);
+      let timestampArray = [];
+      if (element.match(noonReg)) {
+        timestampArray.push('12:00 pm')
       }
-    };
+      else if (element.match(midnightReg)) {
+        console.log("HELLO??")
+        timestampArray.push('12:00 am')
+      }
+      else {
+        timestampArray = element.match(/\d{1,3}:\d{2} (am|pm)/gm);
+      }
+      
+      console.log(timestampArray);
+      if (laneFinder[0] == "General") {
+        lane = 0;
+      }
+      if (laneFinder[0] == "Sentri") {
+        lane = 1;
+      }
+      if (laneFinder[0] == "Ready") {
+        lane = 2;
+      };
+      // let durationArray = element.match(durationReg);
+      let duration = Number(durationFinder[0].match(/\d{1,3}/gm)[0]);
+      const year = new Date().getFullYear();
+      const month = ('0' + (new Date().getMonth() + 1)).slice(-2)
+      const day = ('0' + (new Date().getDate())).slice(-2);
+      const update_time = new Date(`${year}-${month}-${day} ${timestampArray[0]}`);
+      let dateInsert = `TO_TIMESTAMP('${dateTime.year}-${dateTime.month}-${dateTime.day} ${update_time.getHours()}:00:00.000000000', 'YYYY-MM-DD HH24:MI:SS.FF')`;
+      console.log(duration);
+      q += `${bpsql}`
+      q += `${dateInsert},`
+      q += `'${lane}',`
+      q += `${duration * 60},`;
+      q += `${port_num},`;
+      q += `${date_recorded},`;
+      q += `'${raw_data}'`;
+      q += endbp;
+      // console.log(q);
+    });
+
+    // let durationReg = /\d{1,3} (min)/gm;
+    // let laneClosedReg = /((Ready|Sentri|General) Lanes:  Lanes Closed)/gm
+    // let noonReg = /Noon PDT/gm
+    // let midnightReg = /Midnight PDT/gm
+    // let timestampReg = /\d{1,3}:\d{2} (am|pm)/gm
+    // let durationFound = description.match(durationReg);
+    // let updatePendingReg = /((Ready|Sentri|General) Lanes:  Update Pending)/gm;
+    // let updatePendingFound = description.match(updatePendingReg);
+    // let lanesReg = /((Ready|Sentri|General) Lanes: At)/gm;
+    // let lanesFound = description.match(lanesReg);
+    //  console.log(lanesFound, "Jelo");
+    // let timestampFound = description.match(timestampReg);
+    // let laneClosedFound = description.match(laneClosedReg);
+    // if (timestampFound == null) {
+    //   timestampFound = [];
+    // };
+    // if (laneClosedFound == null) {
+    //   laneClosedFound = [];
+    // };
+    // console.log(laneClosedFound);
+    // let noonFound = description.match(noonReg);
+    // let midnightFound = description.match(midnightReg);
+    // if (midnightFound != null) {
+    //   for (let i = 0; i < midnightFound.length; i++) {
+    //     timestampFound.push('12:00 am');
+    //   }
+    // }
+    // if (noonFound != null) {
+    //   for (let i = 0; i < noonFound.length; i++) {
+    //     timestampFound.push('12:00 pm');
+    //   }
+    // };
+    // console.log(durationFound); console.log(date_recorded)
+    // console.log(lanesReg);
+    // if (lanesReg != null) {
+    //   for (let i = 0; i < lanesReg.length; i++) {
+    //     const year = new Date().getFullYear();
+    //     const month = ('0' + (new Date().getMonth() + 1)).slice(-2)
+    //     const day = ('0' + (new Date().getDate())).slice(-2);
+    //     const update_time = new Date(`${year}-${month}-${day} ${timestampFound[i]}`);
+    //     /**
+    //      * Duration in minutes
+    //      */
+    //     let duration = Number(durationFound[i].match(/\d{1,3}/gm)[0]);
+    //     let dateTime = DateTime.now().setZone('America/Los_Angeles');
+    //     let dateInsert = `TO_TIMESTAMP('${dateTime.year}-${dateTime.month}-${dateTime.day} ${update_time.getHours()}:00:00.000000000', 'YYYY-MM-DD HH24:MI:SS.FF')`;
+    //     let lane = 0; 
+    //     if (lanesReg[i] == 'General Lanes: At') {
+    //       lane = 0;
+    //     }
+    //     if (lanesReg[i] == 'Ready Lanes: At') {
+    //       lane = 2;
+    //     }
+    //             if (lanesReg[i] == 'Sentri Lanes: At') {
+    //       lane = 1;
+    //     }
+    //     // if ()
+
+    //     console.log(lane, "LANENENNENENENNENENNEN")
+
+    //     // let dateInsert = `TO_TIMESTAMP('${year}-${month}-${day} ${update_time.getHours()}:00:00.000000000', 'YYYY-MM-DD HH24:MI:SS.FF')`;
+    //     console.log(dateInsert);
+    //     q += `${bpsql}`
+    //     q += `${dateInsert},`
+    //     q += `'${lane}',`
+    //     q += `${duration * 60},`;
+    //     q += `${port_num},`;
+    //     q += `${date_recorded},`;
+    //     q += `'${raw_data}'`;
+    //     q += endbp;
+    //   }
+    // };
     // console.log(q)
     await this.query(q, "CBP Table");
   }
