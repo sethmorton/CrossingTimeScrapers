@@ -20,16 +20,16 @@ const SECRET_DATABASE = process.env.SECRET_DATABASE;
 
 class Maps {
   async merge_run() {
-    // await this.googleMaps();
+    await this.googleMaps();
     // const portNumbers = [250601, 250401, 250301, 250302];
     // Otay
     await this.rss_feed(250601);
     // San Ysidro
-    // await this.rss_feed(250401);
+    await this.rss_feed(250401);
     // Calexico West
-    // await this.rss_feed(250301);
+    await this.rss_feed(250301);
     // Calexico East
-    // await this.rss_feed(250302);
+    await this.rss_feed(250302);
     //  await this.rss_feed();
   }
   /**
