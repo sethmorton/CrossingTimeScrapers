@@ -95,13 +95,15 @@ class Maps {
     const openLanesArray = description.match(openLanesRegex);
 
     const makeSureElementsArentClosed = /(General|Ready|Sentri).(.*?)Closed/gm;
-    for (let i = 0; i < openLanesArray.length; i++) {
-      if (openLanesArray[i].match(/(General|Ready|Sentri).(.*?)Closed/gm)) {
-        let newElement = openLanesArray[i].match(/(?<=Closed).*/gm);
-        openLanesArray.pop(i);
-        openLanesArray.push(newElement[0])
-      }
-    };
+    if (openLanesArray != null) {
+      for (let i = 0; i < openLanesArray.length; i++) {
+        if (openLanesArray[i].match(/(General|Ready|Sentri).(.*?)Closed/gm)) {
+          let newElement = openLanesArray[i].match(/(?<=Closed).*/gm);
+          openLanesArray.pop(i);
+          openLanesArray.push(newElement[0])
+        }
+      };
+    }
     // openLanesArray.forEach(element => {
     //   if (element.match(/(General|Ready|Sentri).(.*?)Closed/gm)) {
 
