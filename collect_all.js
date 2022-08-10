@@ -148,53 +148,56 @@ class Maps {
     };
 
     console.log(openLanesArray);
-    openLanesArray.forEach(element => {
-      let lane = 0;
-      const durationFinder = element.match(/\d{1,3} (min)/gm);
-      const noonReg = /Noon PDT/gm;
-      const midnightReg = /Midnight PDT/gm
-      const timestampReg = /\d{1,3}:\d{2} (am|pm)/gm;
-      const laneFinder = element.match(/(General|Ready|Sentri)/gm);
-      let timestampArray = [];
-      if (element.match(noonReg)) {
-        timestampArray.push('12:00 pm')
-      }
-      else if (element.match(midnightReg)) {
-        console.log("HELLO??")
-        timestampArray.push('12:00 am')
-      }
-      else {
-        timestampArray = element.match(/\d{1,3}:\d{2} (am|pm)/gm);
-      }
-      
-      console.log(timestampArray);
-      if (laneFinder[0] == "General") {
-        lane = 0;
-      }
-      if (laneFinder[0] == "Sentri") {
-        lane = 1;
-      }
-      if (laneFinder[0] == "Ready") {
-        lane = 2;
-      };
-      // let durationArray = element.match(durationReg);
-      let duration = Number(durationFinder[0].match(/\d{1,3}/gm)[0]);
-      const year = new Date().getFullYear();
-      const month = ('0' + (new Date().getMonth() + 1)).slice(-2)
-      const day = ('0' + (new Date().getDate())).slice(-2);
-      const update_time = new Date(`${year}-${month}-${day} ${timestampArray[0]}`);
-      let dateInsert = `TO_TIMESTAMP('${dateTime.year}-${dateTime.month}-${dateTime.day} ${update_time.getHours()}:00:00.000000000', 'YYYY-MM-DD HH24:MI:SS.FF')`;
-      console.log(duration);
-      q += `${bpsql}`
-      q += `${dateInsert},`
-      q += `'${lane}',`
-      q += `${duration * 60},`;
-      q += `${port_num},`;
-      q += `${date_recorded},`;
-      q += `'${raw_data}'`;
-      q += endbp;
-      // console.log(q);
-    });
+    if(openLanesArray != null) {
+      openLanesArray.forEach(element => {
+        let lane = 0;
+        const durationFinder = element.match(/\d{1,3} (min)/gm);
+        const noonReg = /Noon PDT/gm;
+        const midnightReg = /Midnight PDT/gm
+        const timestampReg = /\d{1,3}:\d{2} (am|pm)/gm;
+        const laneFinder = element.match(/(General|Ready|Sentri)/gm);
+        let timestampArray = [];
+        if (element.match(noonReg)) {
+          timestampArray.push('12:00 pm')
+        }
+        else if (element.match(midnightReg)) {
+          console.log("HELLO??")
+          timestampArray.push('12:00 am')
+        }
+        else {
+          timestampArray = element.match(/\d{1,3}:\d{2} (am|pm)/gm);
+        }
+        
+        console.log(timestampArray);
+        if (laneFinder[0] == "General") {
+          lane = 0;
+        }
+        if (laneFinder[0] == "Sentri") {
+          lane = 1;
+        }
+        if (laneFinder[0] == "Ready") {
+          lane = 2;
+        };
+        // let durationArray = element.match(durationReg);
+        let duration = Number(durationFinder[0].match(/\d{1,3}/gm)[0]);
+        const year = new Date().getFullYear();
+        const month = ('0' + (new Date().getMonth() + 1)).slice(-2)
+        const day = ('0' + (new Date().getDate())).slice(-2);
+        const update_time = new Date(`${year}-${month}-${day} ${timestampArray[0]}`);
+        let dateInsert = `TO_TIMESTAMP('${dateTime.year}-${dateTime.month}-${dateTime.day} ${update_time.getHours()}:00:00.000000000', 'YYYY-MM-DD HH24:MI:SS.FF')`;
+        console.log(duration);
+        q += `${bpsql}`
+        q += `${dateInsert},`
+        q += `'${lane}',`
+        q += `${duration * 60},`;
+        q += `${port_num},`;
+        q += `${date_recorded},`;
+        q += `'${raw_data}'`;
+        q += endbp;
+        // console.log(q);
+      });
+    }
+
 
     // let durationReg = /\d{1,3} (min)/gm;
     // let laneClosedReg = /((Ready|Sentri|General) Lanes:  Lanes Closed)/gm
