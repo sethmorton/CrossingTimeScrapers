@@ -80,6 +80,10 @@ class Scraper {
     }
     return currentDateNoDay;
   }
+    /**
+   *
+   * Scrapes
+   */
   async tradeScrape(ports) {
     const translationObject = {
       "San Ysidro": 2404,
@@ -152,7 +156,7 @@ class Scraper {
       Passengers: PASSENGERS,
       Trucks: TRUCKS,
     };
-    const ports = ["Calexico"];
+    const ports = ['Calexico', 'Otay Mesa', 'Andrade', 'Calexico West', 'Tecate'];
     // , 'Calexico East', 'Otay Mesa', 'Andrade', 'Calexico West', 'Tecate'
 
     let q = `
