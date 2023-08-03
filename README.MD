@@ -6,6 +6,7 @@ To run this project, you will need to add the following environment variables to
 `SECRET_USER`
 `SECRET_HOST` 
 `SECRET_DATABASE`
+`SECRET_PORT`
 
 
 ## Deployment :rocket:

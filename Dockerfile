@@ -1,10 +1,10 @@
 
 
-FROM node:18-bullseye
+FROM node
 # install dependencies
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm i
 
 # Copy all local files into the image.
 COPY . .

@@ -1,6 +1,6 @@
 
-const dotenv = require('dotenv');
-dotenv.config({ path: __dirname + '/.env' });
+// const dotenv = require('dotenv');
+// dotenv.config({ path: __dirname + '/.env' });
 
 /** 
 * Imports
@@ -17,6 +17,9 @@ const SECRET_PASS = process.env.SECRET_PASS;
 const SECRET_USER = process.env.SECRET_USER;
 const SECRET_HOST = process.env.SECRET_HOST;
 const SECRET_DATABASE = process.env.SECRET_DATABASE;
+const SECRET_PORT = process.env.SECRET_PORT;
+
+console.log(SECRET_DATABASE);
 
 class Maps {
   async merge_run() {
@@ -45,7 +48,7 @@ class Maps {
       database: SECRET_DATABASE, // env var: PGDATABASE
       password: SECRET_PASS, // env var: PGPASSWORD
       host: SECRET_HOST, // Server hosting the postgres database
-      port: 27076, // env var: PGPORT
+      port: SECRET_PORT, // env var: PGPORT
       max: 10, // max number of clients in the pool
       idleTimeoutMillis: 5000,
       ssl: {
